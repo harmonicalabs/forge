@@ -1,6 +1,6 @@
 [Unit]
 Description=Device heartbeat monitor
-Documentation=https://github.com/companionsand/xavier
+Documentation=https://github.com/harmonicalabs/xavier
 After=network-online.target xavier.service
 Wants=network-online.target
 StartLimitIntervalSec=0

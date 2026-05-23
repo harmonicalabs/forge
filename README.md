@@ -47,7 +47,7 @@ raspberry-pi-client-wrapper/
 │   └── .cache/                # Downloaded tarballs (gitignored)
 ├── services/
 │   └── xavier.service # Systemd service template
-├── raspberry-pi-client/       # Git cloned here (gitignored)
+├── xavier/                    # Git cloned here (gitignored)
 └── README.md                  # This file
 ```
 
@@ -157,7 +157,7 @@ The installer will:
 
 1. Check system compatibility
 2. Install system dependencies (Python, ALSA, audio libraries)
-3. Clone the raspberry-pi-client repository
+3. Clone the Xavier repository
 4. Create Python virtual environment
 5. Install Python requirements
 6. Prompt for configuration (Device ID, OTEL endpoint, Environment)
@@ -307,7 +307,7 @@ Reports are written to:
 ### Manually Update Code
 
 ```bash
-cd ~/raspberry-pi-client-wrapper/raspberry-pi-client
+cd ~/raspberry-pi-client-wrapper/xavier/app
 git pull origin main
 sudo systemctl restart xavier
 ```
@@ -315,7 +315,7 @@ sudo systemctl restart xavier
 ### Reinstall Dependencies
 
 ```bash
-cd ~/raspberry-pi-client-wrapper/raspberry-pi-client
+cd ~/raspberry-pi-client-wrapper/xavier/app
 source venv/bin/activate
 pip install -r requirements.txt --force-reinstall
 ```
@@ -328,7 +328,7 @@ sudo systemctl stop xavier
 sudo systemctl stop otelcol
 
 # Remove cloned repository
-rm -rf ~/raspberry-pi-client-wrapper/raspberry-pi-client
+rm -rf ~/raspberry-pi-client-wrapper/xavier
 
 # Restart (will re-clone)
 sudo systemctl start xavier
@@ -403,7 +403,7 @@ sudo /usr/local/bin/otelcol --config=/etc/otelcol/config.yaml validate
 **Force update:**
 
 ```bash
-cd ~/raspberry-pi-client-wrapper/raspberry-pi-client
+cd ~/raspberry-pi-client-wrapper/xavier/app
 git fetch origin main
 git reset --hard origin/main
 sudo systemctl restart xavier
@@ -435,7 +435,7 @@ To run the client manually (not as a service):
 sudo systemctl stop xavier
 
 # Activate venv and run
-cd ~/raspberry-pi-client-wrapper/raspberry-pi-client
+cd ~/raspberry-pi-client-wrapper/xavier/app
 source venv/bin/activate
 python main.py
 
@@ -483,7 +483,7 @@ The uninstall script will:
 
 - All systemd services
 - OpenTelemetry Collector
-- Cloned raspberry-pi-client repository
+- Cloned Xavier repository
 - Python virtual environment
 
 **Optional (prompted):**
@@ -499,17 +499,17 @@ The uninstall script will:
 
 ### Git Repository
 
-- **URL**: `https://github.com/companionsand/raspberry-pi-client.git` (HTTPS - public repo)
+- **URL**: `https://github.com/harmonicalabs/xavier.git`
 - **Branch**: Configurable via `GIT_BRANCH` in `.env` (default: `main`)
-- **Clone Location**: `~/raspberry-pi-client-wrapper/raspberry-pi-client/`
-- **Authentication**: None required (public repository)
+- **Clone Location**: `~/raspberry-pi-client-wrapper/xavier/`
+- **Authentication**: SSH access/deploy key required
 
 ### Paths
 
 - **Wrapper**: `~/raspberry-pi-client-wrapper/`
-- **Client**: `~/raspberry-pi-client-wrapper/raspberry-pi-client/`
-- **Venv**: `~/raspberry-pi-client-wrapper/raspberry-pi-client/venv/`
-- **Client .env**: `~/raspberry-pi-client-wrapper/raspberry-pi-client/.env`
+- **Client**: `~/raspberry-pi-client-wrapper/xavier/app/`
+- **Venv**: `~/raspberry-pi-client-wrapper/xavier/app/venv/`
+- **Client .env**: `~/raspberry-pi-client-wrapper/xavier/app/.env`
 - **Cache**: `~/raspberry-pi-client-wrapper/otel/.cache/` (OpenTelemetry tarball)
 - **OTEL Config**: `/etc/otelcol/config.yaml`
 - **OTEL Env**: `/etc/otelcol/otelcol.env`
