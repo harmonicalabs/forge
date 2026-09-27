@@ -91,6 +91,6 @@ it will be confused about what's running.
 ## Related
 
 - `/wake-olympia` (in the xavier repo,
-  `${OLYMPIA_REPOS:-$HOME/Code/olympia}/xavier/.agents/skills/wake-olympia`) —
+  `${HARMONICA_HOME:-$HOME/Code/harmonica}/xavier/.agents/skills/wake-olympia`) —
   speak the wake word + optional commands; also accepts a `branch:<name>`
   token for a one-shot combined deploy+wake.
