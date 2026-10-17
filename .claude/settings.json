@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash", "Read", "Edit", "Write", "Glob", "Grep", "NotebookEdit",
+      "WebFetch", "WebSearch", "Agent", "Skill", "Artifact",
+      "mcp__claude-code-remote", "mcp__github", "mcp__ccd_session",
+      "mcp__Notion", "mcp__Slack", "mcp__Gmail", "mcp__Google_Calendar",
+      "mcp__Google_Drive", "mcp__Google_Docs", "mcp__Google_Sheets",
+      "mcp__Supabase", "mcp__Render", "mcp__Figma", "mcp__Canva",
+      "mcp__ElevenLabs", "mcp__Granola", "mcp__Claude_Docs"
+    ]
+  }
+}
