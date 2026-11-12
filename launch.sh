@@ -18,7 +18,8 @@ CEREBRO_REPO_URL="git@github.com:harmonicalabs/cerebro.git"
 DEFAULT_CEREBRO_COMMIT="44f38a64e9efcd2b619a4402d9ed73b3a696517c"
 XAVIER_STATE_DIR="${KIN_STATE_DIR:-/var/lib/xavier}"
 XAVIER_CONFIG_CACHE_PATH="${KIN_CONFIG_CACHE_PATH:-$XAVIER_STATE_DIR/device-config.json}"
-DAVOICE_WHEEL_URL="https://github.com/frymanofer/Python_WakeWordDetection/raw/main/dist/keyword_detection_lib-2.0.3-cp313-none-manylinux2014_aarch64.whl"
+DAVOICE_WHEEL_URL="https://github.com/frymanofer/Python_WakeWordDetection/raw/0b65b595cdd20498940a5fdfb515bcfbbf7757df/dist/keyword_detection_lib-2.0.3-cp313-none-manylinux2014_aarch64.whl#sha256=bb140412c4afff38659325d863d842670c60080f20ba8b0325e00933a743f12b"
+PIP_CONSTRAINTS="$WRAPPER_DIR/constraints.txt"
 
 # Logging
 LOG_PREFIX="[xavier]"
@@ -326,7 +327,7 @@ install_davoice_sdk_best_effort() {
 
     log_info "Installing DaVoice SDK (best effort)..."
 
-    if "$VENV_PYTHON" -m pip install --force-reinstall "setuptools<82" -q 2>/dev/null; then
+    if "$VENV_PYTHON" -m pip install --force-reinstall -c "$PIP_CONSTRAINTS" setuptools -q 2>/dev/null; then
         log_success "Pinned setuptools for DaVoice compatibility"
     else
         log_warn "Could not pin setuptools<82 for DaVoice compatibility"
@@ -578,22 +579,12 @@ cd "$CLIENT_DIR"
 
 if [ -f "requirements.txt" ]; then
     # Try to install requirements (gracefully handle failure if no internet)
-    if [ -x "$VENV_PYTHON" ] && "$VENV_PYTHON" -m pip install --upgrade pip -q 2>/dev/null && "$VENV_PYTHON" -m pip install -r requirements.txt -q 2>/dev/null; then
+    if [ -x "$VENV_PYTHON" ] && "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" --upgrade pip -q 2>/dev/null && "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -r requirements.txt -q 2>/dev/null; then
         log_success "Requirements installed"
-        
-        # Install openwakeword separately with --no-deps
-        # openwakeword requires tflite-runtime which has no Python 3.13 wheels
-        # We use ONNX backend anyway, so tflite-runtime is not needed
-        # Required deps (tqdm, scikit-learn) are already in requirements.txt
-        if "$VENV_PYTHON" -m pip install --no-deps "openwakeword>=0.6.0" -q 2>/dev/null; then
-            log_success "openwakeword installed"
-        else
-            log_info "Could not install openwakeword (using cached version)"
-        fi
 
         # Install cerebro (ML inference submodule) as an editable package
         if [ -f "$CLIENT_DIR/cerebro/pyproject.toml" ]; then
-            "$VENV_PYTHON" -m pip install -e "$CLIENT_DIR/cerebro" -q 2>/dev/null && log_success "cerebro installed" || log_info "Could not install cerebro (using cached version)"
+            "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -e "$CLIENT_DIR/cerebro" -q 2>/dev/null && log_success "cerebro installed" || log_info "Could not install cerebro (using cached version)"
         fi
     else
         log_info "Could not install/update requirements (using cached versions)"
@@ -825,15 +816,13 @@ while true; do
 
                 git submodule update --init --recursive 2>/dev/null || log_info "Could not update cerebro submodule"
                 if ensure_cerebro_dependency && [ -f "$APP_DIR/cerebro/pyproject.toml" ]; then
-                    "$VENV_PYTHON" -m pip install -e "$APP_DIR/cerebro" -q 2>/dev/null || true
+                    "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -e "$APP_DIR/cerebro" -q 2>/dev/null || true
                 fi
                 
                 # Reinstall requirements in case they changed
-                "$VENV_PYTHON" -m pip install -r "$APP_DIR/requirements.txt" -q 2>/dev/null || log_info "Could not update requirements"
-                # Reinstall openwakeword with --no-deps (see requirements.txt comment)
-                "$VENV_PYTHON" -m pip install --no-deps "openwakeword>=0.6.0" -q 2>/dev/null || true
+                "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -r "$APP_DIR/requirements.txt" -q 2>/dev/null || log_info "Could not update requirements"
                 if [ -f "$APP_DIR/cerebro/pyproject.toml" ]; then
-                    "$VENV_PYTHON" -m pip install -e "$APP_DIR/cerebro" -q 2>/dev/null || true
+                    "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -e "$APP_DIR/cerebro" -q 2>/dev/null || true
                 fi
                 install_davoice_sdk_best_effort
                 log_success "Updates applied"

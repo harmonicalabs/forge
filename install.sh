@@ -18,7 +18,8 @@ CEREBRO_REPO_URL="git@github.com:harmonicalabs/cerebro.git"
 DEFAULT_CEREBRO_COMMIT="44f38a64e9efcd2b619a4402d9ed73b3a696517c"
 XAVIER_STATE_DIR="${KIN_STATE_DIR:-/var/lib/xavier}"
 XAVIER_CONFIG_CACHE_PATH="${KIN_CONFIG_CACHE_PATH:-$XAVIER_STATE_DIR/device-config.json}"
-DAVOICE_WHEEL_URL="https://github.com/frymanofer/Python_WakeWordDetection/raw/main/dist/keyword_detection_lib-2.0.3-cp313-none-manylinux2014_aarch64.whl"
+DAVOICE_WHEEL_URL="https://github.com/frymanofer/Python_WakeWordDetection/raw/0b65b595cdd20498940a5fdfb515bcfbbf7757df/dist/keyword_detection_lib-2.0.3-cp313-none-manylinux2014_aarch64.whl#sha256=bb140412c4afff38659325d863d842670c60080f20ba8b0325e00933a743f12b"
+PIP_CONSTRAINTS="$WRAPPER_DIR/constraints.txt"
 
 # Colors for output
 RED='\033[0;31m'
@@ -106,7 +107,7 @@ install_davoice_sdk_best_effort() {
 
     log_info "Installing DaVoice SDK (best effort)..."
 
-    if "$VENV_PYTHON" -m pip install --force-reinstall "setuptools<82" -q; then
+    if "$VENV_PYTHON" -m pip install --force-reinstall -c "$PIP_CONSTRAINTS" setuptools -q; then
         log_success "Pinned setuptools for DaVoice compatibility"
     else
         log_warning "Could not pin setuptools<82 for DaVoice compatibility"
@@ -733,27 +734,19 @@ fi
 
 # Activate for interactive tools; all installs use $VENV_PYTHON -m pip
 source "$VENV_DIR/bin/activate"
-"$VENV_PYTHON" -m pip install --upgrade pip -q
+"$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" --upgrade pip -q
 log_success "Python environment ready"
 
 # Step 5: Install Python requirements
 log_info "Installing Python requirements..."
 
 if [ -f "$CLIENT_DIR/requirements.txt" ]; then
-    "$VENV_PYTHON" -m pip install -r "$CLIENT_DIR/requirements.txt" -q
+    "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -r "$CLIENT_DIR/requirements.txt" -q
     log_success "Python requirements installed"
-    
-    # Install openwakeword separately with --no-deps
-    # openwakeword requires tflite-runtime which has no Python 3.13 wheels
-    # We use ONNX backend anyway, so tflite-runtime is not needed
-    # Required deps (tqdm, scikit-learn) are already in requirements.txt
-    log_info "Installing openwakeword (no-deps)..."
-    "$VENV_PYTHON" -m pip install --no-deps "openwakeword>=0.6.0" -q
-    log_success "openwakeword installed"
 
     # Install cerebro (ML inference submodule) as an editable package
     if [ -f "$CLIENT_DIR/cerebro/pyproject.toml" ]; then
-        "$VENV_PYTHON" -m pip install -e "$CLIENT_DIR/cerebro" -q
+        "$VENV_PYTHON" -m pip install -c "$PIP_CONSTRAINTS" -e "$CLIENT_DIR/cerebro" -q
         log_success "cerebro submodule installed"
     else
         log_warning "cerebro submodule not found at $CLIENT_DIR/cerebro — skipping"
